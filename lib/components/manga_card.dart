@@ -13,7 +13,7 @@ class MangaCard extends StatelessWidget {
     required this.title,
     required this.description,
     required this.price,
-    required this.onTap,
+    required this.onTap, required void Function() onRemove,
   }) : super(key: key);
 
   @override

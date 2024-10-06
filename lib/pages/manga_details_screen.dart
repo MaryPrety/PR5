@@ -10,7 +10,7 @@ class MangaDetailsScreen extends StatelessWidget {
   final String format;
   final String publisher;
   final String imagePath;
-  final String chapters; 
+  final String chapters;
 
   const MangaDetailsScreen({
     Key? key,
@@ -22,7 +22,7 @@ class MangaDetailsScreen extends StatelessWidget {
     required this.format,
     required this.publisher,
     required this.imagePath,
-    required this.chapters, 
+    required this.chapters, required void Function() onDelete,
   }) : super(key: key);
 
   @override
@@ -70,7 +70,7 @@ class MangaDetailsScreen extends StatelessWidget {
                       text: 'go100',
                       style: TextStyle(
                         fontFamily: 'Tektur',
-                        fontSize: isMobile ? 28.0 : 60.0, 
+                        fontSize: isMobile ? 28.0 : 60.0,
                         color: const Color(0xFFECDBBA),
                       ),
                     ),
@@ -81,11 +81,11 @@ class MangaDetailsScreen extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontFamily: 'RussoOne',
-                  fontSize: isMobile ? 28.0 : 50.0, 
+                  fontSize: isMobile ? 28.0 : 50.0,
                   color: const Color(0xFFECDBBA),
                 ),
               ),
-              const SizedBox(height: 50), 
+              const SizedBox(height: 50),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -95,18 +95,18 @@ class MangaDetailsScreen extends StatelessWidget {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(28),
                           child: Image.network(
-                            imagePath, 
-                            width: isMobile ? 120 : 250, 
+                            imagePath,
+                            width: isMobile ? 120 : 250,
                             fit: BoxFit.contain,
                           ),
                         ),
                         const SizedBox(height: 50),
                         Text(
-                          format, 
+                          format,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'Tektur',
-                            fontSize: isMobile ? 10.0 : 20.0, 
+                            fontSize: isMobile ? 10.0 : 20.0,
                             color: const Color(0xFFECDBBA),
                           ),
                         ),
@@ -119,7 +119,7 @@ class MangaDetailsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          chapters, 
+                          chapters,
                           style: TextStyle(
                             fontFamily: 'RussoOne',
                             fontSize: isMobile ? 16.0 : 28.0,
@@ -128,7 +128,7 @@ class MangaDetailsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 40),
                         Text(
-                          description, 
+                          description,
                           style: TextStyle(
                             fontFamily: 'RussoOne',
                             fontSize: isMobile ? 12.0 : 18.0,
@@ -152,7 +152,7 @@ class MangaDetailsScreen extends StatelessWidget {
                             '$price',
                             style: TextStyle(
                               fontFamily: 'RussoOne',
-                              fontSize: isMobile ? 14.0 : 20.0, 
+                              fontSize: isMobile ? 14.0 : 20.0,
                               color: const Color(0xFFECDBBA),
                             ),
                             textAlign: TextAlign.center,
@@ -167,8 +167,8 @@ class MangaDetailsScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(14),
                                 child: Image.network(
                                   image,
-                                  width: isMobile ? 50 : 80, 
-                                  height: isMobile ? 50 : 80, 
+                                  width: isMobile ? 50 : 80,
+                                  height: isMobile ? 50 : 80,
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -195,7 +195,7 @@ class MangaDetailsScreen extends StatelessWidget {
                     ),
                     const TextSpan(text: 'Издательство '),
                     TextSpan(
-                      text: publisher, 
+                      text: publisher,
                       style: TextStyle(
                         fontFamily: 'Tektur',
                         fontSize: isMobile ? 12.0 : 16.0,
@@ -208,7 +208,32 @@ class MangaDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 30), 
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () {
+                  // Возвращаем индекс при нажатии на кнопку "Удалить"
+                  Navigator.pop(context, index);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFC84B31),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 10,
+                  ),
+                ),
+                child: Text(
+                  'Удалить',
+                  style: TextStyle(
+                    fontFamily: 'RussoOne',
+                    fontSize: isMobile ? 14.0 : 20.0,
+                    color: const Color(0xFFECDBBA),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ),

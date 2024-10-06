@@ -36,7 +36,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController(); 
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _groupNumberController = TextEditingController(); // Добавлен контроллер для поля "Номер группы"
 
   void _login() {
     if (_formKey.currentState!.validate()) {
@@ -51,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 600;
-    final cardWidth = isSmallScreen ? screenWidth : screenWidth * 0.6; 
+    final cardWidth = isSmallScreen ? screenWidth : screenWidth * 0.6;
     final fontSize = isSmallScreen ? 24.0 : 32.0;
 
     return Padding(
@@ -79,9 +80,11 @@ class _LoginPageState extends State<LoginPage> {
                         color: primaryColor,
                       ),
                     ),
-                    const SizedBox(height: 24), 
+                    const SizedBox(height: 24),
                     isSmallScreen ? _buildSingleColumnLayout() : _buildDoubleColumnLayout(),
-                    const SizedBox(height: 24), 
+                    const SizedBox(height: 24),
+                    _buildGroupNumberField(), // Добавлено поле "Номер группы"
+                    const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -102,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 32),
                     SizedBox(
-                      width: isSmallScreen ? double.infinity : 200, 
+                      width: isSmallScreen ? double.infinity : 200,
                       child: ElevatedButton(
                         onPressed: _login,
                         style: ElevatedButton.styleFrom(
@@ -118,10 +121,10 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
-                      width: isSmallScreen ? double.infinity : 200, 
+                      width: isSmallScreen ? double.infinity : 200,
                       child: OutlinedButton(
                         onPressed: () {
-                         
+                          // Логика регистрации
                         },
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 50),
@@ -139,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
-                        
+                        // Логика восстановления пароля
                       },
                       child: const Text(
                         'Восстановить пароль',
@@ -156,7 +159,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
- 
   Widget _buildSingleColumnLayout() {
     return Column(
       children: [
@@ -175,7 +177,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  
   Widget _buildDoubleColumnLayout() {
     return Row(
       children: [
@@ -229,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
             fillColor: secondaryColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(defaultRadius),
-              borderSide: const BorderSide(color: textColor), 
+              borderSide: const BorderSide(color: textColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(defaultRadius),
@@ -237,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(defaultRadius),
-              borderSide: const BorderSide(color: primaryColor), 
+              borderSide: const BorderSide(color: primaryColor),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
@@ -257,7 +258,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
- 
   Widget _buildGenderAndAgeSelection() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,7 +317,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
- 
   Widget _buildCountrySelection() {
     const List<String> countries = [
       'Россия', 'Украина', 'Беларусь', 'Казахстан', 'Другая'
@@ -352,15 +351,15 @@ class _LoginPageState extends State<LoginPage> {
             fillColor: secondaryColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(defaultRadius),
-              borderSide: const BorderSide(color: textColor), 
+              borderSide: const BorderSide(color: textColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(defaultRadius),
-              borderSide: const BorderSide(color: textColor), 
+              borderSide: const BorderSide(color: textColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(defaultRadius),
-              borderSide: const BorderSide(color: primaryColor), 
+              borderSide: const BorderSide(color: primaryColor),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
@@ -369,9 +368,18 @@ class _LoginPageState extends State<LoginPage> {
             fontSize: defaultTextSize,
             fontFamily: 'Tektur',
           ),
-          icon: const Icon(Icons.arrow_drop_down, color: textColor), 
+          icon: const Icon(Icons.arrow_drop_down, color: textColor),
         ),
       ],
+    );
+  }
+
+  Widget _buildGroupNumberField() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: _buildInputField('Номер группы', _groupNumberController, hintText: 'Введите номер группы'),
+      ),
     );
   }
 }

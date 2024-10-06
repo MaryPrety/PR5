@@ -1,8 +1,11 @@
+// lib/pages/home_page.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../components/manga_card.dart';
 import '../models/manga_item.dart';
 import 'manga_details_screen.dart';
 import 'upload_new_volume_page.dart';
+import '../providers/favorite_provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,7 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<MangaItem> productItems = [
-     MangaItem(
+    MangaItem(
       imagePath: 'https://sun1-25.userapi.com/impg/DOnyhuU_QBsca35XAr-n_gPNnN-mxrMXwU862w/s7mcCbHbKa4.jpg?size=632x1000&quality=95&sign=e6e3545030659d40332278d2e9cd74a2&type=album',
       title: 'Том 1',
       description: 'Знакомство с Кагэямой Сигэо, известным как Моб, восьмиклассником с мощными физическими способностями. Моб пытается вести обычную жизнь, контролируя свои силы, чтобы избежать разрушений.',
@@ -125,8 +128,7 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  bool _isHovered = false; 
-
+  // Переход на экран добавления нового тома манги
   void _navigateToAddProductScreen(BuildContext context) async {
     final result = await Navigator.push(
       context,
@@ -140,7 +142,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _removeProduct(int index) {
+  // Управление избранными элементами
+  void _toggleFavorite(BuildContext context, int index) {
+    final provider = Provider.of<FavoriteProvider>(context, listen: false);
+    final product = productItems[index];
+    if (provider.favoriteItems.contains(product)) {
+      provider.removeFromFavorites(product);
+    } else {
+      provider.addToFavorites(product);
+    }
+  }
+
+  // Удаление элемента манги
+  void _deleteMangaItem(int index) {
     setState(() {
       productItems.removeAt(index);
     });
@@ -150,9 +164,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
 
     return Scaffold(
-      backgroundColor: backgroundColor, 
+      backgroundColor: const Color(0xFF191919),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -160,7 +175,7 @@ class _HomePageState extends State<HomePage> {
             _buildHeader(context, isMobile),
             const SizedBox(height: 20),
             Expanded(
-              child: _buildMangaList(context, isMobile),
+              child: _buildMangaList(context, isMobile, favoriteProvider),
             ),
           ],
         ),
@@ -168,6 +183,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Шапка страницы
   Widget _buildHeader(BuildContext context, bool isMobile) {
     return Align(
       alignment: Alignment.topCenter,
@@ -178,7 +194,7 @@ class _HomePageState extends State<HomePage> {
             'MANgo100',
             style: TextStyle(
               fontSize: isMobile ? 30.0 : 40.0,
-              color: secondaryColor,
+              color: const Color(0xFFECDBBA),
               fontFamily: 'Tektur',
             ),
           ),
@@ -189,12 +205,12 @@ class _HomePageState extends State<HomePage> {
               width: isMobile ? 24.0 : 40.0,
               height: isMobile ? 24.0 : 40.0,
               decoration: BoxDecoration(
-                color: primaryColor,
+                color: const Color(0xFFC84B31),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.add,
-                color: secondaryColor,
+                color: const Color(0xFFECDBBA),
                 size: 20,
               ),
             ),
@@ -204,19 +220,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMangaList(BuildContext context, bool isMobile) {
+  // Список карточек манги
+  Widget _buildMangaList(BuildContext context, bool isMobile, FavoriteProvider favoriteProvider) {
     return ListView.builder(
       itemCount: productItems.length,
       itemBuilder: (context, index) {
         final productItem = productItems[index];
         return isMobile
-            ? _buildMobileCard(context, productItem, index)
-            : _buildDesktopCard(context, productItem, index);
+            ? _buildMobileCard(context, productItem, index, favoriteProvider)
+            : _buildDesktopCard(context, productItem, index, favoriteProvider);
       },
     );
   }
 
-  Widget _buildMobileCard(BuildContext context, MangaItem productItem, int index) {
+  // Мобильная карточка
+  Widget _buildMobileCard(BuildContext context, MangaItem productItem, int index, FavoriteProvider favoriteProvider) {
     return Stack(
       children: [
         MangaCard(
@@ -224,8 +242,8 @@ class _HomePageState extends State<HomePage> {
           title: productItem.title,
           description: productItem.shortDescription,
           price: productItem.price,
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => MangaDetailsScreen(
@@ -238,31 +256,26 @@ class _HomePageState extends State<HomePage> {
                   publisher: productItem.publisher,
                   imagePath: productItem.imagePath,
                   chapters: productItem.chapters,
+                  onDelete: () {},
                 ),
               ),
             );
+
+            if (result != null && result is int) {
+              _deleteMangaItem(result);
+            }
           },
+          onRemove: () {},
         ),
         Positioned(
-          top: 25, 
-          right: 15,
+          top: 30,
+          right: 24,
           child: GestureDetector(
-            onTap: () {
-              _removeProduct(index);
-            },
-            child: Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: primaryColor, 
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(15), 
-              ),
-              child: Icon(
-                Icons.close,
-                color: secondaryColor, 
-                size: 20,
-              ),
+            onTap: () => _toggleFavorite(context, index),
+            child: Icon(
+              favoriteProvider.favoriteItems.contains(productItem) ? Icons.favorite : Icons.favorite_border,
+              color: const Color(0xFFC84B31),
+              size: 24,
             ),
           ),
         ),
@@ -270,70 +283,53 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildDesktopCard(BuildContext context, MangaItem productItem, int index) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() {
-          _isHovered = true;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          _isHovered = false;
-        });
-      },
-      child: Stack(
-        children: [
-          MangaCard(
-            imagePath: productItem.imagePath,
-            title: productItem.title,
-            description: productItem.shortDescription,
-            price: productItem.price,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MangaDetailsScreen(
-                    title: productItem.title,
-                    price: productItem.price,
-                    index: index,
-                    additionalImages: productItem.additionalImages,
-                    description: productItem.description,
-                    format: productItem.format,
-                    publisher: productItem.publisher,
-                    imagePath: productItem.imagePath,
-                    chapters: productItem.chapters,
-                  ),
-                ),
-              );
-            },
-          ),
-          if (_isHovered)
-            Positioned(
-              top: 25, // Опустим кнопку чуть ниже
-              right: 15,
-              child: GestureDetector(
-                onTap: () {
-                  _removeProduct(index);
-                },
-                child: Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: primaryColor, 
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    color: secondaryColor, 
-                    size: 20,
-                  ),
+  // Карточка для десктопной версии
+  Widget _buildDesktopCard(BuildContext context, MangaItem productItem, int index, FavoriteProvider favoriteProvider) {
+    return Stack(
+      children: [
+        MangaCard(
+          imagePath: productItem.imagePath,
+          title: productItem.title,
+          description: productItem.shortDescription,
+          price: productItem.price,
+          onTap: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MangaDetailsScreen(
+                  title: productItem.title,
+                  price: productItem.price,
+                  index: index,
+                  additionalImages: productItem.additionalImages,
+                  description: productItem.description,
+                  format: productItem.format,
+                  publisher: productItem.publisher,
+                  imagePath: productItem.imagePath,
+                  chapters: productItem.chapters,
+                  onDelete: () {},
                 ),
               ),
+            );
+
+            if (result != null && result is int) {
+              _deleteMangaItem(result);
+            }
+          },
+          onRemove: () {},
+        ),
+        Positioned(
+          top: 30,
+          right: 24,
+          child: GestureDetector(
+            onTap: () => _toggleFavorite(context, index),
+            child: Icon(
+              favoriteProvider.favoriteItems.contains(productItem) ? Icons.favorite : Icons.favorite_border,
+              color: const Color(0xFFC84B31),
+              size: 30,
             ),
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 }
